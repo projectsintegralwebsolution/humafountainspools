@@ -13,8 +13,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-// Default to port 3000 (standard for MilesWeb / Passenger proxy) or process.env.PORT
-const PORT = process.env.PORT || 5000;
+// Default to port 3000 (standard for MilesWeb Node.js Proxy) or process.env.PORT
+const PORT = process.env.PORT || 3000;
 
 // Enable CORS and JSON parsing
 app.use(cors());
@@ -253,6 +253,6 @@ if (fs.existsSync(distPath)) {
   });
 }
 
-app.listen(PORT, () => {
-  console.log(`HUMA Backend Server running on port ${PORT}`);
+app.listen(Number(PORT), '0.0.0.0', () => {
+  console.log(`HUMA Backend Server running on http://0.0.0.0:${PORT}`);
 });
