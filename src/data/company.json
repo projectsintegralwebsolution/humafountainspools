@@ -1,0 +1,42 @@
+{
+  "name": "HUMA FOUNTAINS & POOLS",
+  "tagline": "Innovative Lighting Solution",
+  "mfgSince": "2010",
+  "founder": "Nassar Khan",
+  "certification": "ISO 9001:2015 CERTIFIED COMPANY",
+  "address": "SR NO. 37, H NO. 2/3, Behind A K Industrial Estate, Dhumal Nagar, Vasai East, Vasai-Virar City (M-Corp), PIN Code: 401208, Maharashtra, India",
+  "phoneNumbers": [
+    "+91 8668466689",
+    "+91 9766775542",
+    "+91 8180944842",
+    "+91 8600955082",
+    "+91 8237744663",
+    "+91 7410555788",
+    "+91 8600955088",
+    "+91 9552244668"
+  ],
+  "primaryPhone": "+91 8668466689",
+  "email": "fountainpooled@gmail.com",
+  "website": "humafountainspools.com",
+  "businessHours": "Monday \u2013 Saturday: 9:00 AM \u2013 7:00 PM IST",
+  "catalogues": [
+    {
+      "id": "pool-catalogue",
+      "title": "HUMA Swimming Pool Lighting Catalogue",
+      "filename": "huma-swimming-pool-lighting-catalogue-2024.pdf",
+      "cover": "/assets/catalogue/catalogue-cover-pool.webp",
+      "file": "/assets/catalogue/huma-swimming-pool-lighting-catalogue-2024.pdf",
+      "pages": 18,
+      "description": "Complete specifications, dimensional drawings, and photometric options for surface, ABS, ultra-slim, full SS, and concealed underwater pool lights."
+    },
+    {
+      "id": "fountain-catalogue",
+      "title": "HUMA Fountain Lighting & Equipments Catalogue",
+      "filename": "huma-fountain-lighting-catalogue-2024.pdf",
+      "cover": "/assets/catalogue/catalogue-cover-fountain.webp",
+      "file": "/assets/catalogue/huma-fountain-lighting-catalogue-2024.pdf",
+      "pages": 28,
+      "description": "Comprehensive guide to spot fountain lights, nozzle-mounted fixtures, linear LED wall washers, architectural fountain nozzles, and waterfall spillways."
+    }
+  ]
+}

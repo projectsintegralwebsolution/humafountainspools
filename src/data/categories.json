@@ -1,0 +1,46 @@
+[
+  {
+    "id": "pool-lighting",
+    "name": "Pool Lighting",
+    "slug": "pool-lighting",
+    "tagline": "Engineered for Swimming Pools & Underwater Aquatic Environments",
+    "description": "HUMA manufactures an extensive portfolio of certified IP68 underwater swimming pool lights in marine-grade SS 304/316 and high-impact ABS. Featuring premium Edison and Cree LED technology, multiple colorways, and ultra-slim wall profiles.",
+    "image": "/assets/hero/hero-pool-night-luxury.webp",
+    "productCount": 8,
+    "subCategories": [
+      "Underwater Pool Lights",
+      "LED Pool Lights",
+      "Swimming Pool Lights",
+      "Pool Light Fittings"
+    ]
+  },
+  {
+    "id": "fountain-lighting",
+    "name": "Fountain Lighting",
+    "slug": "fountain-lighting",
+    "tagline": "Vibrant Underwater Illuminations for Fountains & Water Columns",
+    "description": "Transform fountains and dynamic water installations with HUMA high-output spot lights, donut center-hole nozzle lights, and adjustable swivel fixtures. Engineered with IP68 submersible ratings and high-intensity optical punch.",
+    "image": "/assets/hero/hero-fountain-grand.webp",
+    "productCount": 6,
+    "subCategories": [
+      "Fountain Lights",
+      "Underwater Fountain Lights",
+      "LED Fountain Lights",
+      "Fountain Light Fittings"
+    ]
+  },
+  {
+    "id": "water-feature-lighting",
+    "name": "Water Feature Lighting",
+    "slug": "water-feature-lighting",
+    "tagline": "Architectural Grazing & Illuminated Waterfalls",
+    "description": "Architectural water walls, shear cascades, cobra nozzles, and linear LED wall washers engineered for seamless integration across luxury residential and commercial outdoor spaces.",
+    "image": "/assets/applications/app-architectural-facade.webp",
+    "productCount": 5,
+    "subCategories": [
+      "Water Feature Lights",
+      "Architectural Water Lighting",
+      "Decorative Water Lighting"
+    ]
+  }
+]

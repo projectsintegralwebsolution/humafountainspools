@@ -1,0 +1,148 @@
+@import "tailwindcss";
+
+@theme {
+  --color-navy-950: #031525;
+  --color-navy-900: #062B4C;
+  --color-navy-850: #072642;
+  --color-navy-800: #082E4F;
+  --color-navy-700: #0D3E66;
+  --color-navy-600: #145385;
+  --color-aqua-600: #069BA4;
+  --color-aqua-500: #08B8C2;
+  --color-aqua-400: #2BD0DA;
+  --color-aqua-300: #6DE0E8;
+  --color-aqua-100: #DDF7F8;
+  --color-aqua-50: #F2FCFC;
+  --color-gold-500: #E8B84A;
+  --color-gold-400: #F3C966;
+  --color-gold-600: #C99A32;
+  --color-soft-bg: #F4FAFB;
+  --color-brand-pink: #E83676;
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-family: var(--font-sans);
+    color: #1e293b;
+    background-color: #ffffff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, .font-heading {
+    font-family: var(--font-serif);
+  }
+
+  ::selection {
+    background-color: #08B8C2;
+    color: #ffffff;
+  }
+}
+
+/* Custom subtle lighting glow effects */
+.glow-aqua {
+  box-shadow: 0 0 25px rgba(8, 184, 194, 0.25);
+}
+
+.glow-aqua-hover:hover {
+  box-shadow: 0 0 35px rgba(8, 184, 194, 0.4);
+}
+
+.glow-gold {
+  box-shadow: 0 0 25px rgba(232, 184, 74, 0.3);
+}
+
+.glow-emerald {
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.25);
+}
+
+.glow-blue {
+  box-shadow: 0 0 25px rgba(59, 130, 246, 0.25);
+}
+
+.glow-multi {
+  box-shadow: 0 8px 32px rgba(8, 184, 194, 0.18), 0 2px 10px rgba(232, 184, 74, 0.12);
+}
+
+/* Premium gradient overlays */
+.hero-overlay-cinematic {
+  background: linear-gradient(
+    180deg,
+    rgba(6, 43, 76, 0.85) 0%,
+    rgba(8, 46, 79, 0.72) 40%,
+    rgba(3, 21, 37, 0.94) 100%
+  );
+}
+
+.water-shimmer-bg {
+  background: radial-gradient(
+    circle at 50% 0%,
+    rgba(8, 184, 194, 0.12) 0%,
+    rgba(244, 250, 251, 1) 75%
+  );
+}
+
+/* Luxury iridescent border highlight */
+.shimmer-border {
+  background: linear-gradient(90deg, rgba(8, 184, 194, 0.4), rgba(232, 184, 74, 0.4), rgba(59, 130, 246, 0.4));
+  background-size: 200% 200%;
+  animation: shimmerMove 4s ease infinite;
+}
+
+@keyframes shimmerMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes floatGentle {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-float {
+  animation: floatGentle 4s ease-in-out infinite;
+}
+
+/* Glassmorphism containers */
+.glass-panel-dark {
+  background: rgba(4, 27, 48, 0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.glass-panel-light {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+/* Focus styles for accessibility */
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: 2px solid #08B8C2;
+  outline-offset: 2px;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #08B8C2;
+}
