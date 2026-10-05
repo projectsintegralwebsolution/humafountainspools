@@ -56,17 +56,18 @@ const recentSubmissions = new Map();
 
 // Setup Nodemailer transporter
 const createTransporter = () => {
-  const host = process.env.SMTP_HOST;
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
   const port = parseInt(process.env.SMTP_PORT || '587', 10);
-  const user = process.env.SMTP_USER;
+  const user = process.env.SMTP_USER || 'integralwebsolution@gmail.com';
   const pass = process.env.SMTP_PASSWORD;
 
-  if (host && user && pass) {
+  // Verify valid password configured (prevent trying with ******* placeholder)
+  if (host && user && pass && !pass.includes('*') && pass.trim().length > 0) {
     return nodemailer.createTransport({
       host,
       port,
       secure: port === 465,
-      auth: { user, pass },
+      auth: { user, pass: pass.trim() },
     });
   }
   return null;
@@ -82,7 +83,7 @@ app.get('/api/health', (_req, res) => {
   });
 });
 
-// Enquiry Submission Endpoint
+// Enquiry Submission Endpoint (3-Way Notification)
 app.post('/api/enquiry', upload.single('file'), async (req, res) => {
   try {
     const {
@@ -137,94 +138,195 @@ app.post('/api/enquiry', upload.single('file'), async (req, res) => {
 
     const uploadedFile = req.file;
 
-    // 4. Send internal notification email & customer auto-confirmation
+    // 4. Automated Notification Email System:
+    // Sender: integralwebsolution@gmail.com
+    // Recipient 1: HUMA Company Admin (fountainpooled@gmail.com)
+    // Recipient 2: Agency Audit Copy (integralwebsolution@gmail.com)
+    // Recipient 3: Personal Copy (princekumarjha80@gmail.com - strictly private, not visible on website)
+    // Recipient 4: Visitor / Customer Confirmation (email provided in form)
     const transporter = createTransporter();
     const adminEmail = process.env.ADMIN_EMAIL || 'fountainpooled@gmail.com';
+    const agencyEmail = process.env.AGENCY_EMAIL || 'integralwebsolution@gmail.com';
+    const personalEmail = process.env.PERSONAL_EMAIL || 'princekumarjha80@gmail.com';
+    const smtpUser = process.env.SMTP_USER || 'integralwebsolution@gmail.com';
+    const fromAddress = `"HUMA Fountains & Pools" <${smtpUser}>`;
+
+    const emailAttachments = uploadedFile
+      ? [
+          {
+            filename: uploadedFile.originalname,
+            path: uploadedFile.path,
+          },
+        ]
+      : [];
+
+    // [1/4] HUMA Admin Lead Notification
+    const adminMailOptions = {
+      from: fromAddress,
+      to: adminEmail,
+      replyTo: email,
+      subject: `New Project Lighting Enquiry: ${requirementType || 'Pool Lighting'} - ${fullName}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+          <div style="background-color: #062B4C; padding: 22px; color: #ffffff;">
+            <h2 style="margin: 0; font-size: 20px; letter-spacing: 0.5px;">New Project Lighting Enquiry</h2>
+            <p style="margin: 5px 0 0; font-size: 13px; color: #08B8C2;">HUMA Fountains & Pools • Manufacturing Plant, Vasai-Virar</p>
+          </div>
+          <div style="padding: 24px; color: #1e293b; line-height: 1.6;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+              <tr><td style="padding: 8px 0; color: #64748b; width: 150px;"><strong>Client Name:</strong></td><td><strong style="color: #062B4C;">${fullName}</strong></td></tr>
+              <tr><td style="padding: 8px 0; color: #64748b;"><strong>Company / Firm:</strong></td><td>${companyName || 'Not specified'}</td></tr>
+              <tr><td style="padding: 8px 0; color: #64748b;"><strong>Phone:</strong></td><td><a href="tel:${phone}" style="color: #0284c7; text-decoration: none; font-weight: bold;">${phone}</a></td></tr>
+              <tr><td style="padding: 8px 0; color: #64748b;"><strong>Email:</strong></td><td><a href="mailto:${email}" style="color: #0284c7; text-decoration: none;">${email}</a></td></tr>
+              <tr><td style="padding: 8px 0; color: #64748b;"><strong>City / Site Location:</strong></td><td>${city || 'Not specified'}</td></tr>
+              <tr><td style="padding: 8px 0; color: #64748b;"><strong>Requirement Category:</strong></td><td><span style="background: #e0f2fe; color: #0369a1; padding: 3px 10px; border-radius: 4px; font-weight: 600;">${requirementType}</span></td></tr>
+              <tr><td style="padding: 8px 0; color: #64748b;"><strong>Product Code / Scope:</strong></td><td><span style="background: #f1f5f9; color: #334155; padding: 3px 10px; border-radius: 4px; font-weight: 600;">${productRequirement || 'General Inquiry'}</span></td></tr>
+            </table>
+            <div style="margin-top: 18px; padding: 14px; background: #f8fafc; border-radius: 6px; border-left: 4px solid #08B8C2;">
+              <strong style="color: #062B4C;">Client Project Details:</strong><br/>
+              <p style="margin: 6px 0 0; white-space: pre-wrap; color: #334155;">${message}</p>
+            </div>
+            ${uploadedFile ? `<div style="margin-top: 14px; padding: 10px 14px; background: #ecfdf5; border-radius: 6px; color: #065f46; font-size: 13px;">📎 <strong>Attached Drawing / Doc:</strong> ${uploadedFile.originalname} (${Math.round(uploadedFile.size / 1024)} KB)</div>` : ''}
+          </div>
+          <div style="background: #f1f5f9; padding: 12px 24px; font-size: 11px; color: #64748b; text-align: center;">
+            Lead captured via humafountainspools.com • Direct reply will send to ${email}
+          </div>
+        </div>
+      `,
+      attachments: emailAttachments,
+    };
+
+    // [2/4] Agency Audit Notification Copy (Integral Web Solution)
+    const agencyMailOptions = {
+      from: fromAddress,
+      to: agencyEmail,
+      replyTo: email,
+      subject: `[Lead Notification Copy] ${requirementType || 'Lighting'} - ${fullName} | HUMA Website`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden;">
+          <div style="background-color: #1e293b; padding: 18px 22px; color: #ffffff;">
+            <h3 style="margin: 0; font-size: 16px; color: #38bdf8;">HUMA Fountains & Pools — Agency Audit Copy</h3>
+            <p style="margin: 3px 0 0; font-size: 12px; color: #94a3b8;">Automated Lead Notification System</p>
+          </div>
+          <div style="padding: 20px; font-size: 13px; color: #334155; line-height: 1.5;">
+            <p style="margin-top: 0;">A new project lead was submitted through the HUMA website and routed to <strong>${adminEmail}</strong>:</p>
+            <ul style="padding-left: 20px; margin: 10px 0;">
+              <li><strong>Lead Name:</strong> ${fullName}</li>
+              <li><strong>Contact:</strong> ${phone} | ${email}</li>
+              <li><strong>Company:</strong> ${companyName || 'N/A'} (Location: ${city || 'N/A'})</li>
+              <li><strong>Requirement:</strong> ${requirementType} — ${productRequirement || 'N/A'}</li>
+              <li><strong>Attachment:</strong> ${uploadedFile ? uploadedFile.originalname : 'None'}</li>
+            </ul>
+            <div style="margin-top: 14px; padding: 10px; background: #f8fafc; border-radius: 4px; font-size: 12px; color: #64748b;">
+              <strong>Note:</strong> Client confirmation was simultaneously sent to <em>${email}</em>.
+            </div>
+          </div>
+        </div>
+      `,
+      attachments: emailAttachments,
+    };
+
+    // [3/4] Personal Direct Notification Copy (Prince Kumar Jha)
+    const personalMailOptions = {
+      from: fromAddress,
+      to: personalEmail,
+      replyTo: email,
+      subject: `[Lead Alert] ${requirementType || 'Lighting'} - ${fullName} | HUMA Fountains & Pools`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; border: 1px solid #0284c7; border-radius: 8px; overflow: hidden;">
+          <div style="background-color: #0369a1; padding: 18px 22px; color: #ffffff;">
+            <h3 style="margin: 0; font-size: 16px; color: #ffffff;">New Website Lead Notification</h3>
+            <p style="margin: 3px 0 0; font-size: 12px; color: #e0f2fe;">HUMA Fountains & Pools • Personal Copy</p>
+          </div>
+          <div style="padding: 22px; font-size: 13px; color: #334155; line-height: 1.6;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+              <tr><td style="padding: 6px 0; color: #64748b; width: 130px;"><strong>Client Name:</strong></td><td><strong>${fullName}</strong></td></tr>
+              <tr><td style="padding: 6px 0; color: #64748b;"><strong>Company:</strong></td><td>${companyName || 'Not specified'}</td></tr>
+              <tr><td style="padding: 6px 0; color: #64748b;"><strong>Phone:</strong></td><td><a href="tel:${phone}" style="color: #0284c7; font-weight: bold;">${phone}</a></td></tr>
+              <tr><td style="padding: 6px 0; color: #64748b;"><strong>Email:</strong></td><td><a href="mailto:${email}" style="color: #0284c7;">${email}</a></td></tr>
+              <tr><td style="padding: 6px 0; color: #64748b;"><strong>City:</strong></td><td>${city || 'Not specified'}</td></tr>
+              <tr><td style="padding: 6px 0; color: #64748b;"><strong>Requirement:</strong></td><td>${requirementType} — ${productRequirement || 'General Selection'}</td></tr>
+            </table>
+            <div style="margin-top: 14px; padding: 12px; background: #f8fafc; border-radius: 6px; border-left: 3px solid #0284c7;">
+              <strong>Message:</strong><br/>
+              <p style="margin: 4px 0 0; color: #1e293b;">${message}</p>
+            </div>
+            ${uploadedFile ? `<div style="margin-top: 10px; font-size: 12px; color: #0284c7;">📎 Attachment: ${uploadedFile.originalname}</div>` : ''}
+          </div>
+        </div>
+      `,
+      attachments: emailAttachments,
+    };
+
+    // [4/4] Visitor Confirmation Email (Auto-acknowledgement to form submitter)
+    const customerMailOptions = {
+      from: fromAddress,
+      to: email,
+      replyTo: adminEmail,
+      subject: `Enquiry Received — HUMA Fountains & Pools`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+          <div style="background-color: #062B4C; padding: 24px; text-align: center; color: #ffffff;">
+            <h1 style="margin: 0; font-size: 22px; letter-spacing: 1px;">HUMA FOUNTAINS & POOLS</h1>
+            <p style="margin: 4px 0 0; font-size: 13px; color: #08B8C2;">Innovative Lighting Solutions • MFG Since 2010</p>
+          </div>
+          <div style="padding: 24px; color: #334155; line-height: 1.6; font-size: 14px;">
+            <p>Dear <strong>${fullName}</strong>,</p>
+            <p>Thank you for contacting <strong>HUMA Fountains & Pools</strong> regarding your aquatic lighting requirements (<strong>${productRequirement || requirementType}</strong>).</p>
+            <p>Our engineering and technical sales desk has received your project details. One of our lighting specialists will review your requirements and get back to you with photometric guidance, catalogue cut-sheets, and factory quotation shortly.</p>
+            
+            <div style="margin: 20px 0; padding: 18px; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+              <h4 style="margin: 0 0 10px; color: #062B4C; font-size: 14px;">Direct Factory & Sales Support:</h4>
+              <p style="margin: 4px 0; font-size: 13px;">📞 <strong>Phone:</strong> <a href="tel:+918668466689" style="color: #062B4C; text-decoration: none;">+91 8668466689</a> / <a href="tel:+919766775542" style="color: #062B4C; text-decoration: none;">+91 9766775542</a></p>
+              <p style="margin: 4px 0; font-size: 13px;">✉️ <strong>Email:</strong> <a href="mailto:fountainpooled@gmail.com" style="color: #062B4C; text-decoration: none;">fountainpooled@gmail.com</a></p>
+              <p style="margin: 4px 0; font-size: 13px;">📍 <strong>Plant:</strong> Vasai East, Vasai-Virar, Maharashtra 401208</p>
+            </div>
+
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 0;">
+              Best regards,<br/>
+              <strong>Technical Lighting Sales Desk</strong><br/>
+              HUMA Fountains & Pools
+            </p>
+          </div>
+          <div style="background: #f1f5f9; padding: 12px; font-size: 11px; color: #94a3b8; text-align: center;">
+            This is an automated acknowledgment confirming receipt of your inquiry.
+          </div>
+        </div>
+      `,
+    };
 
     if (transporter) {
-      // Internal Admin Email
-      const adminMailOptions = {
-        from: `"HUMA Website Enquiry" <${process.env.SMTP_USER}>`,
-        to: adminEmail,
-        replyTo: email,
-        subject: `New B2B Enquiry: ${requirementType || 'Pool Lighting'} - ${fullName}`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
-            <div style="background-color: #062B4C; padding: 20px; color: #ffffff;">
-              <h2 style="margin: 0; font-size: 20px;">New Project Lighting Enquiry</h2>
-              <p style="margin: 5px 0 0; font-size: 13px; color: #08B8C2;">HUMA Fountains & Pools • Vasai-Virar</p>
-            </div>
-            <div style="padding: 24px; color: #1e293b; line-height: 1.6;">
-              <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-                <tr><td style="padding: 8px 0; color: #64748b; width: 140px;"><strong>Client Name:</strong></td><td>${fullName}</td></tr>
-                <tr><td style="padding: 8px 0; color: #64748b;"><strong>Company:</strong></td><td>${companyName || 'Not specified'}</td></tr>
-                <tr><td style="padding: 8px 0; color: #64748b;"><strong>Phone:</strong></td><td><a href="tel:${phone}">${phone}</a></td></tr>
-                <tr><td style="padding: 8px 0; color: #64748b;"><strong>Email:</strong></td><td><a href="mailto:${email}">${email}</a></td></tr>
-                <tr><td style="padding: 8px 0; color: #64748b;"><strong>City / Location:</strong></td><td>${city || 'Not specified'}</td></tr>
-                <tr><td style="padding: 8px 0; color: #64748b;"><strong>Requirement:</strong></td><td><span style="background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 4px;">${requirementType}</span></td></tr>
-                <tr><td style="padding: 8px 0; color: #64748b;"><strong>Product Code:</strong></td><td>${productRequirement || 'General Selection'}</td></tr>
-              </table>
-              <div style="margin-top: 16px; padding: 14px; background: #f8fafc; border-radius: 6px; border-left: 4px solid #08B8C2;">
-                <strong>Message:</strong><br/>
-                <p style="margin: 6px 0 0; white-space: pre-wrap;">${message}</p>
-              </div>
-              ${uploadedFile ? `<p style="margin-top: 14px; font-size: 13px; color: #0f766e;"><strong>Attachment:</strong> ${uploadedFile.originalname} (${Math.round(uploadedFile.size / 1024)} KB)</p>` : ''}
-            </div>
-            <div style="background: #f1f5f9; padding: 12px 24px; font-size: 11px; color: #64748b; text-align: center;">
-              Enquiry submitted via humafountainspools.com
-            </div>
-          </div>
-        `,
-        attachments: uploadedFile
-          ? [
-              {
-                filename: uploadedFile.originalname,
-                path: uploadedFile.path,
-              },
-            ]
-          : [],
-      };
-
-      // Customer Auto-confirmation Email
-      const customerMailOptions = {
-        from: `"HUMA Fountains & Pools" <${process.env.SMTP_USER}>`,
-        to: email,
-        subject: `Enquiry Received — HUMA Fountains & Pools`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
-            <div style="background-color: #062B4C; padding: 24px; text-align: center; color: #ffffff;">
-              <h1 style="margin: 0; font-size: 22px;">HUMA FOUNTAINS & POOLS</h1>
-              <p style="margin: 4px 0 0; font-size: 13px; color: #08B8C2;">Innovative Lighting Solution • MFG Since 2010</p>
-            </div>
-            <div style="padding: 24px; color: #334155; line-height: 1.6; font-size: 14px;">
-              <p>Dear <strong>${fullName}</strong>,</p>
-              <p>Thank you for contacting <strong>HUMA Fountains & Pools</strong> regarding your aquatic lighting requirements (<strong>${productRequirement || requirementType}</strong>).</p>
-              <p>Our engineering and technical sales desk has received your details. One of our lighting specialists will review your requirements and get back to you with photometric guidance, catalogue cut-sheets, and factory quotation shortly.</p>
-              <div style="margin: 20px 0; padding: 16px; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
-                <h4 style="margin: 0 0 8px; color: #062B4C;">Direct Factory Contacts:</h4>
-                <p style="margin: 4px 0; font-size: 13px;">📞 Phone: +91 8668466689 / +91 9766775542</p>
-                <p style="margin: 4px 0; font-size: 13px;">✉️ Email: fountainpooled@gmail.com</p>
-                <p style="margin: 4px 0; font-size: 13px;">📍 Plant: Vasai East, Vasai-Virar, Maharashtra 401208</p>
-              </div>
-              <p style="font-size: 13px; color: #64748b;">Best regards,<br/><strong>Team HUMA Fountains & Pools</strong></p>
-            </div>
-          </div>
-        `,
-      };
-
+      // Dispatch all notifications in parallel
       await Promise.all([
         transporter.sendMail(adminMailOptions),
+        transporter.sendMail(agencyMailOptions),
+        transporter.sendMail(personalMailOptions),
         transporter.sendMail(customerMailOptions),
       ]);
+      console.log('✅ Lead Notifications Dispatched Successfully:');
+      console.log(`   [1/4] HUMA Admin:    ${adminEmail}`);
+      console.log(`   [2/4] Agency Copy:   ${agencyEmail}`);
+      console.log(`   [3/4] Personal Copy: ${personalEmail}`);
+      console.log(`   [4/4] Customer Conf: ${email}`);
     } else {
-      console.log('--- ENQUIRY RECEIVED (SMTP Pending Configuration) ---');
-      console.log('Name:', fullName);
-      console.log('Phone:', phone);
-      console.log('Email:', email);
-      console.log('Requirement:', requirementType, '| Product:', productRequirement);
-      console.log('Message:', message);
-      if (uploadedFile) console.log('Attached file:', uploadedFile.originalname);
-      console.log('----------------------------------------------------');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('📬 LEAD NOTIFICATION ACTIVE (Simulation Mode - App Password is *******)');
+      console.log(`   • SMTP Sender:          ${smtpUser}`);
+      console.log(`   • [1/4] HUMA Client:    ${adminEmail} (Primary lead notification)`);
+      console.log(`   • [2/4] Agency Copy:    ${agencyEmail} (Audit copy notification)`);
+      console.log(`   • [3/4] Personal Copy:  ${personalEmail} (Personal lead copy)`);
+      console.log(`   • [4/4] Customer:       ${email} (Auto-confirmation notification)`);
+      console.log('   --- Lead Details ---');
+      console.log(`   Client Name:  ${fullName}`);
+      console.log(`   Company:      ${companyName || 'Not specified'}`);
+      console.log(`   Phone:        ${phone}`);
+      console.log(`   Email:        ${email}`);
+      console.log(`   City:         ${city || 'Not specified'}`);
+      console.log(`   Requirement:  ${requirementType} | Product: ${productRequirement || 'General Selection'}`);
+      console.log(`   Message:      ${message}`);
+      if (uploadedFile) console.log(`   Attachment:   ${uploadedFile.originalname} (${Math.round(uploadedFile.size / 1024)} KB)`);
+      console.log('   ℹ️ Note: Update your Gmail App Password in .env to begin live SMTP delivery.');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     }
 
     return res.status(200).json({
