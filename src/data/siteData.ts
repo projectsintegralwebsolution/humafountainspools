@@ -1360,7 +1360,7 @@ export const COMPANY: CompanyInfo = {
     "+91 9552244668"
   ],
   "primaryPhone": "+91 8668466689",
-  "email": "fountainpooled@gmail.com",
+  "email": "fountainpoolled@gmail.com",
   "website": "humafountainspools.com",
   "businessHours": "Monday \u2013 Saturday: 9:00 AM \u2013 7:00 PM IST",
   "catalogues": [

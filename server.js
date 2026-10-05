@@ -50113,7 +50113,7 @@ app.post("/api/enquiry", upload.single("file"), async (req, res) => {
     recentSubmissions.set(dedupeKey, now);
     const uploadedFile = req.file;
     const transporter = createTransporter();
-    const adminEmail = process.env.ADMIN_EMAIL || "fountainpooled@gmail.com";
+    const adminEmail = process.env.ADMIN_EMAIL || "fountainpoolled@gmail.com";
     const agencyEmail = process.env.AGENCY_EMAIL || "integralwebsolution@gmail.com";
     const personalEmail = process.env.PERSONAL_EMAIL || "princekumarjha80@gmail.com";
     const smtpUser = process.env.SMTP_USER || "integralwebsolution@gmail.com";
@@ -50235,7 +50235,7 @@ app.post("/api/enquiry", upload.single("file"), async (req, res) => {
             <div style="margin: 20px 0; padding: 18px; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
               <h4 style="margin: 0 0 10px; color: #062B4C; font-size: 14px;">Direct Factory & Sales Support:</h4>
               <p style="margin: 4px 0; font-size: 13px;">\u{1F4DE} <strong>Phone:</strong> <a href="tel:+918668466689" style="color: #062B4C; text-decoration: none;">+91 8668466689</a> / <a href="tel:+919766775542" style="color: #062B4C; text-decoration: none;">+91 9766775542</a></p>
-              <p style="margin: 4px 0; font-size: 13px;">\u2709\uFE0F <strong>Email:</strong> <a href="mailto:fountainpooled@gmail.com" style="color: #062B4C; text-decoration: none;">fountainpooled@gmail.com</a></p>
+              <p style="margin: 4px 0; font-size: 13px;">\u2709\uFE0F <strong>Email:</strong> <a href="mailto:fountainpoolled@gmail.com" style="color: #062B4C; text-decoration: none;">fountainpoolled@gmail.com</a></p>
               <p style="margin: 4px 0; font-size: 13px;">\u{1F4CD} <strong>Plant:</strong> Vasai East, Vasai-Virar, Maharashtra 401208</p>
             </div>
 

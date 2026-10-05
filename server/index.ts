@@ -134,7 +134,7 @@ app.post('/api/enquiry', upload.single('file'), async (req: Request, res: Respon
 
     // 4. Send internal notification email & customer auto-confirmation
     const transporter = createTransporter();
-    const adminEmail = process.env.ADMIN_EMAIL || 'fountainpooled@gmail.com';
+    const adminEmail = process.env.ADMIN_EMAIL || 'fountainpoolled@gmail.com';
 
     if (transporter) {
       // Internal Admin Email
@@ -198,7 +198,7 @@ app.post('/api/enquiry', upload.single('file'), async (req: Request, res: Respon
               <div style="margin: 20px 0; padding: 16px; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
                 <h4 style="margin: 0 0 8px; color: #062B4C;">Direct Factory Contacts:</h4>
                 <p style="margin: 4px 0; font-size: 13px;">📞 Phone: +91 8668466689 / +91 9766775542</p>
-                <p style="margin: 4px 0; font-size: 13px;">✉️ Email: fountainpooled@gmail.com</p>
+                <p style="margin: 4px 0; font-size: 13px;">✉️ Email: fountainpoolled@gmail.com</p>
                 <p style="margin: 4px 0; font-size: 13px;">📍 Plant: Vasai East, Vasai-Virar, Maharashtra 401208</p>
               </div>
               <p style="font-size: 13px; color: #64748b;">Best regards,<br/><strong>Team HUMA Fountains & Pools</strong></p>
